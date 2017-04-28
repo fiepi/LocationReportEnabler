@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Log;
 
 public class EnablerReceiver extends BroadcastReceiver {
@@ -12,11 +13,16 @@ public class EnablerReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        PropUtil.enableLocationReport();
         Log.d("EnablerReceiver", "Set prop by " + intent.getAction());
-        SharedPreferences sharedPreferences = context.getSharedPreferences(PropUtil.PREFERENCE_NAME, Context.MODE_PRIVATE);
-        if (sharedPreferences.getBoolean(PropUtil.PREFERENCE_HIDE_ICON, PropUtil.PREFERENCE_HIDE_ICON_DEFAULT)){
-            PropUtil.hideLauncher(context);
+
+        SharedPreferences preferences = PropUtil.getProtecredSharedPreferences(context);
+
+        if (preferences.getBoolean(PropUtil.PREFERENCE_ENABLED, PropUtil.PREFERENCE_ENABLED_DEFAULT)) {
+            String numeric = preferences.getString(PropUtil.PREFERENCE_FAKE_NUMERIC, PropUtil.PREFERENCE_FAKE_NUMERIC_DEFAULT);
+            String country = preferences.getString(PropUtil.PREFERENCE_FAKE_COUNTRY, PropUtil.PREFERENCE_FAKE_COUNTRY_DEFAULT);
+
+            PropUtil.enableLocationReport(numeric, country);
+            PropUtil.hideOrShowLauncher(context, preferences.getBoolean(PropUtil.PREFERENCE_HIDE_ICON, PropUtil.PREFERENCE_HIDE_ICON_DEFAULT));
         }
     }
 }
